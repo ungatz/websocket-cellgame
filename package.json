@@ -1,0 +1,11 @@
+{
+  "name": "cell-game",
+  "version": "1.0.0",
+  "description": "an overengineered piece of software to implement a multiplayer ineractive game through Web Sockets.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "Sanad Kadu",
+  "license": "MIT"
+}

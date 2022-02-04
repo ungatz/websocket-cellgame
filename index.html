@@ -1,0 +1,60 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Cell Game</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+    </head>
+    <body>
+        <h1> Cell Game </h1>
+        <p> Cover all the cells with your color and you win ! </p>
+        <button id="btnCreate"> New Game </button>
+        <button id="btnJoin"> Join Game </button>
+        <input id="txtGameId" type="text">
+        <div id = "divCanvas"></div>
+        <div id = "divPlayers"></div>
+        <script>
+         let clientID = null;
+         let gameID = null;
+         let playerColor = null;
+         let btnCreate = document.getElementById("btnCreate");
+         let btnJoin = document.getElementById("btnJoin");
+         let txtGameID = document.getElementById("txtGameId");
+         let divPlayers = document.getElementById("divPlayers");
+         let divBoard = document.getElementById("divBoard");
+
+         // Adding Event Listners to them buttons
+         btnCreate.addEventListner("click", e => {
+             let payload = {
+                 "clientID": clientID,
+                 "method": "create"
+             };
+             ws.send(JSON.stringify(payload));
+         });
+
+         btnJoin.addEventListner("click", e => {
+             if(gameID === null)
+                 gameID = txtGameID;
+             let payload = {
+                 "clientID": clientID,
+                 "gameID": gameID,
+                 "method": "join"
+             };
+             ws.send(JSON.stringify(payload));
+         });
+
+         // When we bet back the reply to out .send() methods
+         let ws = new WebSocket('ws://localhost:8080');
+         ws.onmessage = message => {
+
+         }
+
+        </script>
+    </body>
+</html>

@@ -17,7 +17,7 @@
         <button id="btnCreate"> New Game </button>
         <button id="btnJoin"> Join Game </button>
         <input id="txtGameId" type="text">
-        <div id = "divCanvas"></div>
+        <div id = "divBoard"></div>
         <div id = "divPlayers"></div>
         <script>
          let clientID = null;
@@ -30,7 +30,7 @@
          let divBoard = document.getElementById("divBoard");
 
          // Adding Event Listners to them buttons
-         btnCreate.addEventListner("click", e => {
+         btnCreate.addEventListener("click", e => {
              let payload = {
                  "clientID": clientID,
                  "method": "create"
@@ -38,9 +38,10 @@
              ws.send(JSON.stringify(payload));
          });
 
-         btnJoin.addEventListner("click", e => {
+         btnJoin.addEventListener("click", e => {
              if(gameID === null)
-                 gameID = txtGameID;
+                 gameID = txtGameID.value;
+             console.log(gameID);
              let payload = {
                  "clientID": clientID,
                  "gameID": gameID,
@@ -52,9 +53,65 @@
          // When we bet back the reply to out .send() methods
          let ws = new WebSocket('ws://localhost:8080');
          ws.onmessage = message => {
+             let response = JSON.parse(message.data);
+             let method = response.method;
 
+             // Connect
+             if(method == "connect"){
+                 clientID = response.clientID;
+                 console.log("Client ID set successfully: "+ clientID);
+             }
+             // Create
+             if(method == "create"){
+                 gameID = response.game.id;
+                 console.log("Game ID created successfully: "+ gameID+ " with "+ response.game.cells+ " cells.");
+             }
+             // Update
+             if(method == "update"){
+                 if(!response.game.state) return;
+                 for(let c of Object.keys(response.game.state)){
+                     let color = response.game.state[c];
+                     let cellObject = document.getElementById("cell"+c);
+                     cellObject.style.backgroundColor = color;
+                 }
+             }
+             // Join
+             if(method == "join"){
+                 let game = response.game;
+                 while(divPlayers.firstChild)
+                     divPlayers.removeChild(divPlayers.firstChild);
+                 game.clients.forEach(c => {
+                     let d = document.createElement("div");
+                     d.style.width = "100px";
+                     d.style.background = c.color;
+                     d.textContent = c.clientID;
+                     divPlayers.appendChild(d);
+                     if(c.clientID == clientID) playerColor = c.color;
+                 });
+                 while(divPlayers.firstChild)
+                     divPlayers.removeChild(divPlayers.firstChild);
+                 for(let i = 1; i <= game.cells; i++){
+                     let b = document.createElement("button");
+                     b.id = "cell" + i;
+                     b.tag = i;
+                     b.textContent = i;
+                     b.style.width = "100px";
+                     b.style.height = "100px";
+                     b.addEventListener("click", e => {
+                         b.style.background = playerColor;
+                         let payload = {
+                             "method": "play",
+                             "clientID": clientID,
+                             "gameID": gameID,
+                             "cellID": b.tag,
+                             "color": playerColor
+                         };
+                         ws.send(JSON.stringify(payload));
+                     });
+                     divBoard.appendChild(b);
+                 }
+             }
          }
-
         </script>
     </body>
 </html>

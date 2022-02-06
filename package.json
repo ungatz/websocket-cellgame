@@ -7,5 +7,11 @@
     "test": "node index.js"
   },
   "author": "Sanad Kadu",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.2",
+    "nodemon": "^2.0.15",
+    "websocket": "^1.0.34",
+    "websockets": "^0.2.0"
+  }
 }
